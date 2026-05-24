@@ -1,0 +1,442 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Classroom Learning Hub Template</title>
+  <style>
+    /* ---------- Theme Variables (4 Distinct Schemes) ---------- */
+    :root {
+      /* Theme 1 - Bubblegum Pink (Default) */
+      --bg-main: #FF90E8; --bg-grid: #FF70D8; --subtitle-color: #FF3366; --welcome-bg: #FFD400;
+      --cal-month-bg: #FF3366; --card-hover-bg: #00FFCC; --btn-bg: #4353FF; --btn-hover: #2E3BFF;
+      --link-hover-bg: #FF3366; --link-hover-text: #FFF;
+    }
+    body.theme-2 {
+      /* Theme 2 - Electric Blue */
+      --bg-main: #6B7CFF; --bg-grid: #5263FF; --subtitle-color: #FF9900; --welcome-bg: #00FFCC; 
+      --cal-month-bg: #FF3366; --card-hover-bg: #FFD400; --btn-bg: #FF9900; --btn-hover: #E68A00; 
+      --link-hover-bg: #FFD400; --link-hover-text: #000;
+    }
+    body.theme-3 {
+      /* Theme 3 - Mint Green */
+      --bg-main: #00FFCC; --bg-grid: #00E6B8; --subtitle-color: #4353FF; --welcome-bg: #FF90E8; 
+      --cal-month-bg: #000000; --card-hover-bg: #B388FF; --btn-bg: #FF3366; --btn-hover: #E62E5C; 
+      --link-hover-bg: #4353FF; --link-hover-text: #FFF;
+    }
+    body.theme-4 {
+      /* Theme 4 - Cyber Yellow */
+      --bg-main: #FFD400; --bg-grid: #E6BE00; --subtitle-color: #FF3366; --welcome-bg: #4353FF; 
+      --cal-month-bg: #B388FF; --card-hover-bg: #00FF66; --btn-bg: #000000; --btn-hover: #333333; 
+      --link-hover-bg: #00FF66; --link-hover-text: #000;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif; 
+      color: #000;
+      min-height: 100vh;
+      background-color: var(--bg-main);
+      background-image: linear-gradient(var(--bg-grid) 2px, transparent 2px), linear-gradient(90deg, var(--bg-grid) 2px, transparent 2px);
+      background-size: 30px 30px;
+    }
+
+    header { text-align: center; background: #FFF; border-bottom: 4px solid #000; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    
+    .site-logo { width: 80px; height: 80px; margin-bottom: 8px; }
+    .site-logo svg { width: 100%; height: 100%; }
+
+    h1 { margin: 0 0 6px; font-size: clamp(24px, 4vw, 36px); font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+
+    .back-btn { 
+      padding: 10px 16px; border: 3px solid #000; background: #FFF; color: #000; font-weight: 900; 
+      text-transform: uppercase; box-shadow: 3px 3px 0px #000; border-radius: 6px; text-decoration: none; 
+      margin-top: 10px; display: inline-block; transition: all 0.1s; cursor: pointer;
+    }
+    .back-btn:hover { background: var(--welcome-bg); transform: translate(-2px, -2px); box-shadow: 5px 5px 0px #000; }
+
+    .container { 
+      max-width: 850px; margin: 40px auto; padding: 30px; background: #FFF; border: 4px solid #000; 
+      box-shadow: 12px 12px 0px #000; border-radius: 12px; 
+    }
+
+    h2 { font-size: 28px; font-weight: 900; margin: 0 0 20px; border-bottom: 4px solid #000; padding-bottom: 8px; text-transform: uppercase; }
+    h3 { font-size: 20px; font-weight: 900; margin: 30px 0 16px; text-transform: uppercase; border-bottom: 2px dashed #ccc; padding-bottom: 4px; }
+    h3.no-margin-top { margin-top: 0; border-bottom: none; padding-bottom: 0; }
+
+    /* ---------- WEEKLY ACCORDION STYLES ---------- */
+    .week-section {
+      margin-bottom: 20px;
+      border: 4px solid #000;
+      border-radius: 8px;
+      background: #FFF;
+      box-shadow: 6px 6px 0px #000;
+      overflow: hidden;
+    }
+
+    .week-header {
+      padding: 16px 20px;
+      background: var(--welcome-bg);
+      cursor: pointer;
+      font-weight: 900;
+      font-size: 20px;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: filter 0.2s;
+    }
+
+    .week-header:hover { filter: brightness(0.9); }
+    .week-header .icon { font-size: 16px; transition: transform 0.3s; }
+    .week-section.active .week-header .icon { transform: rotate(180deg); }
+
+    .week-content {
+      padding: 24px;
+      display: none; 
+      background: #FAFAFA;
+      border-top: 4px solid #000;
+    }
+
+    .week-section.active .week-content {
+      display: block; 
+    }
+
+    /* ---------- INTERNAL WEEK LAYOUT ---------- */
+    .week-intro-layout {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 600px) {
+      .week-intro-layout { flex-direction: column; }
+    }
+
+    /* Calendar Square Inside Week */
+    .calendar-widget {
+      width: 80px;
+      border: 4px solid #000;
+      background: #FFF;
+      text-align: center;
+      box-shadow: 4px 4px 0px #000;
+      flex-shrink: 0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .cal-month { background: var(--cal-month-bg); color: #FFF; font-weight: 900; padding: 6px 0; text-transform: uppercase; font-size: 16px; letter-spacing: 1px; border-bottom: 4px solid #000; transition: background 0.3s; }
+    .cal-day { font-size: 32px; font-weight: 900; padding: 10px 0; color: #000; }
+
+    /* Layout for Teacher Content */
+    .content-box {
+      flex: 1; 
+      border: 3px solid #000; padding: 20px; font-size: 16px; font-weight: 500; background: #FFF; 
+      border-radius: 8px; box-shadow: 4px 4px 0px #000; line-height: 1.6;
+    }
+
+    .content-box h4 { font-size: 18px; font-weight: 900; margin: 24px 0 8px; text-transform: uppercase; }
+    .content-box h4:first-child { margin-top: 0; }
+    .content-box p { margin-top: 0; margin-bottom: 12px; }
+    .content-box p:last-child { margin-bottom: 0; }
+
+    /* Large Links for Students to Click */
+    .class-link {
+      display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; 
+      border: 4px solid #000; border-radius: 8px; font-size: 16px; background: #FFF; color: #000; 
+      font-weight: 900; text-decoration: none; box-shadow: 6px 6px 0px #000; margin-bottom: 16px; 
+      transition: all 0.15s; 
+    }
+    .class-link:hover {
+      background: var(--card-hover-bg); transform: translate(4px, 4px); box-shadow: 2px 2px 0px #000;
+    }
+    .link-icon { font-size: 28px; }
+    
+    .curriculum-box { margin-bottom: 30px; }
+  </style>
+</head>
+
+<body>
+  <script>
+    const themes = ['theme-1', 'theme-2', 'theme-3', 'theme-4'];
+    document.body.classList.add(themes[Math.floor(Math.random() * themes.length)]);
+  </script>
+
+  <header>
+    <div class="site-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <path d="M 65 30 L 65 20 L 70 20 L 70 30 L 85 30 L 85 40 L 75 40 L 75 50 L 80 60 L 75 85 L 60 85 L 65 65 L 45 65 L 35 85 L 20 85 L 30 60 L 10 60 L 25 50 L 25 40 L 55 40 L 65 30 Z" fill="#000" transform="translate(6, 6)"/>
+        <path d="M 65 30 L 65 20 L 70 20 L 70 30 L 85 30 L 85 40 L 75 40 L 75 50 L 80 60 L 75 85 L 60 85 L 65 65 L 45 65 L 35 85 L 20 85 L 30 60 L 10 60 L 25 50 L 25 40 L 55 40 L 65 30 Z" fill="#FFF" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M 65 45 L 50 10 L 45 25 L 20 15 L 40 45 Z" fill="#000" transform="translate(6, 6)"/>
+        <path d="M 65 45 L 50 10 L 45 25 L 20 15 L 40 45 Z" fill="var(--welcome-bg)" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1>Classroom Portal</h1>
+    <a href="#" onclick="window.close(); return false;" class="back-btn">✖ Close Page</a>
+  </header>
+
+  <div class="container">
+    <h2>Learning Hub - Digital Technologies</h2>
+
+    <div class="content-box curriculum-box">
+      <h3 class="no-margin-top">What We Are Learning</h3>
+      <ul>
+        <li>Learn how to show information using pictures, symbols, numbers, and words.</li>
+        <li>Learn how data moves between different devices.</li>
+      </ul>
+    </div>
+
+    <div class="week-section active" id="week4">
+      <div class="week-header" onclick="toggleWeek('week4')">
+        Week 4 <span class="icon">▼</span>
+      </div>
+      <div class="week-content">
+        <div class="week-intro-layout">
+          <div class="calendar-widget">
+            <div class="cal-month">MAY</div>
+            <div class="cal-day">12</div>
+          </div>
+          <div class="content-box">
+            <h3 class="no-margin-top">📢 Announcements & Content</h3>
+            <h4>What is Data?</h4>
+            <p><strong>Learning Intention:</strong> Students will be able to define data and identify different types of data (text, numbers, images, audio).</p>
+            <p><strong>Applications:</strong> PowerPoint, Seesaw</p>
+            <p><strong>Activity:</strong> We are going to learn about what data is! We will look at a presentation and go on a "Data Hunt" around the classroom to find real-world examples of number, word, and picture data.</p>
+          </div>
+        </div>
+        <h3>🔗 Today's Activities</h3>
+        <div>
+          <a href="#" class="class-link" target="_blank">
+            <span>1. Placeholder Link Title</span>
+            <span class="link-icon">🔗</span>
+          </a>
+          <a href="#" class="class-link" target="_blank">
+            <span>2. Placeholder Link Title</span>
+            <span class="link-icon">🔗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="week-section" id="week5">
+      <div class="week-header" onclick="toggleWeek('week5')">
+        Week 5 <span class="icon">▼</span>
+      </div>
+      <div class="week-content">
+        <div class="week-intro-layout">
+          <div class="calendar-widget">
+            <div class="cal-month">MAY</div>
+            <div class="cal-day">19</div>
+          </div>
+          <div class="content-box">
+            <h3 class="no-margin-top">📢 Announcements & Content</h3>
+            <h4>Same Data, Different Ways</h4>
+            <p><strong>Learning Intention:</strong> Students will demonstrate how a single piece of information can be represented in multiple different ways.</p>
+            <p><strong>Applications:</strong> Canva, Blooket</p>
+            <p><strong>Activity:</strong> Did you know the number "five" can be a digit, a word, tally marks, or a picture? We will use Canva to make a "Data Poster" showing one piece of data in four different ways!</p>
+          </div>
+        </div>
+        <h3>🔗 Today's Activities</h3>
+        <div>
+          <a href="#" class="class-link" target="_blank">
+            <span>1. Placeholder Link Title</span>
+            <span class="link-icon">🔗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="week-section" id="week6">
+      <div class="week-header" onclick="toggleWeek('week6')">
+        Week 6 <span class="icon">▼</span>
+      </div>
+      <div class="week-content">
+        <div class="week-intro-layout">
+          <div class="calendar-widget">
+            <div class="cal-month">MAY</div>
+            <div class="cal-day">26</div>
+          </div>
+          <div class="content-box">
+            <h3 class="no-margin-top">📢 Announcements & Content</h3>
+            <h4>Choosing the Right Representation</h4>
+            <p><strong>Learning Intention:</strong> Students will explain why certain data representations are better suited for specific purposes.</p>
+            <p><strong>Applications:</strong> Code.org, PowerPoint</p>
+            <p><strong>Activity:</strong> Why do road signs use pictures instead of long sentences? We will discuss how pictures give us information fast. Then, we will play coding games using arrows instead of words to move characters!</p>
+          </div>
+        </div>
+        <h3>🔗 Today's Activities</h3>
+        <div>
+          <a href="#" class="class-link" target="_blank">
+            <span>1. Placeholder Link Title</span>
+            <span class="link-icon">🔗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="week-section" id="week7">
+      <div class="week-header" onclick="toggleWeek('week7')">
+        Week 7 <span class="icon">▼</span>
+      </div>
+      <div class="week-content">
+        <div class="week-intro-layout">
+          <div class="calendar-widget">
+            <div class="cal-month">JUN</div>
+            <div class="cal-day">02</div>
+          </div>
+          <div class="content-box">
+            <h3 class="no-margin-top">📢 Announcements & Content</h3>
+            <h4>Connecting Systems</h4>
+            <p><strong>Learning Intention:</strong> Students will define a network and identify how digital systems connect to share information.</p>
+            <p><strong>Applications:</strong> Canva, Seesaw</p>
+            <p><strong>Activity:</strong> How does a phone send a photo to a TV? We will learn about networks and draw a map of how devices like laptops, tablets, and printers connect using Wi-Fi.</p>
+          </div>
+        </div>
+        <h3>🔗 Today's Activities</h3>
+        <div>
+          <a href="#" class="class-link" target="_blank">
+            <span>1. Placeholder Link Title</span>
+            <span class="link-icon">🔗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="week-section" id="week8">
+      <div class="week-header" onclick="toggleWeek('week8')">
+        Week 8 <span class="icon">▼</span>
+      </div>
+      <div class="week-content">
+        <div class="week-intro-layout">
+          <div class="calendar-widget">
+            <div class="cal-month">JUN</div>
+            <div class="cal-day">09</div>
+          </div>
+          <div class="content-box">
+            <h3 class="no-margin-top">📢 Announcements & Content</h3>
+            <h4>Simulating Data Transmission</h4>
+            <p><strong>Learning Intention:</strong> Students will simulate how data is transmitted from one digital system to another.</p>
+            <p><strong>Applications:</strong> Scratch, Blooket</p>
+            <p><strong>Activity:</strong> We will use Scratch to make two characters, like a phone and a laptop. We will learn how to broadcast a message from one to the other so it lights up or plays a sound!</p>
+          </div>
+        </div>
+        <h3>🔗 Today's Activities</h3>
+        <div>
+          <a href="#" class="class-link" target="_blank">
+            <span>1. Placeholder Link Title</span>
+            <span class="link-icon">🔗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="week-section" id="week9">
+      <div class="week-header" onclick="toggleWeek('week9')">
+        Week 9 <span class="icon">▼</span>
+      </div>
+      <div class="week-content">
+        <div class="week-intro-layout">
+          <div class="calendar-widget">
+            <div class="cal-month">JUN</div>
+            <div class="cal-day">16</div>
+          </div>
+          <div class="content-box">
+            <h3 class="no-margin-top">📢 Announcements & Content</h3>
+            <h4>Coding Data Representations</h4>
+            <p><strong>Learning Intention:</strong> Students will transmit different representations of data in a simulated network.</p>
+            <p><strong>Applications:</strong> Scratch, Seesaw</p>
+            <p><strong>Activity:</strong> Let's build on our Scratch project! You will code a character to ask for a number and send it to the other character. The second character will change its costume to show that many stars based on the data.</p>
+          </div>
+        </div>
+        <h3>🔗 Today's Activities</h3>
+        <div>
+          <a href="#" class="class-link" target="_blank">
+            <span>1. Placeholder Link Title</span>
+            <span class="link-icon">🔗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="week-section" id="week10">
+      <div class="week-header" onclick="toggleWeek('week10')">
+        Week 10 <span class="icon">▼</span>
+      </div>
+      <div class="week-content">
+        <div class="week-intro-layout">
+          <div class="calendar-widget">
+            <div class="cal-month">JUN</div>
+            <div class="cal-day">23</div>
+          </div>
+          <div class="content-box">
+            <h3 class="no-margin-top">📢 Announcements & Content</h3>
+            <h4>Planning a Data Transmission Project</h4>
+            <p><strong>Learning Intention:</strong> Students will plan a digital solution that transmits a specific type of data for a clear purpose.</p>
+            <p><strong>Applications:</strong> PowerPoint or Canva</p>
+            <p><strong>Activity:</strong> It is time to design a "Smart Alert System", like a weather warning. We will use Canva or PowerPoint to storyboard our ideas and show what data is being collected and transmitted.</p>
+          </div>
+        </div>
+        <h3>🔗 Today's Activities</h3>
+        <div>
+          <a href="#" class="class-link" target="_blank">
+            <span>1. Placeholder Link Title</span>
+            <span class="link-icon">🔗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="week-section" id="week11">
+      <div class="week-header" onclick="toggleWeek('week11')">
+        Week 11 <span class="icon">▼</span>
+      </div>
+      <div class="week-content">
+        <div class="week-intro-layout">
+          <div class="calendar-widget">
+            <div class="cal-month">JUN</div>
+            <div class="cal-day">30</div>
+          </div>
+          <div class="content-box">
+            <h3 class="no-margin-top">📢 Announcements & Content</h3>
+            <h4>Project Build and Showcase</h4>
+            <p><strong>Learning Intention:</strong> Students will build, test, and present a functional prototype of their data transmission project.</p>
+            <p><strong>Applications:</strong> Scratch, Seesaw, Blooket</p>
+            <p><strong>Activity:</strong> Today you will build your Smart Alert System in Scratch! Once it works, you will record your screen to capture your project in action.</p>
+          </div>
+        </div>
+        <h3>🔗 Today's Activities</h3>
+        <div>
+          <a href="#" class="class-link" target="_blank">
+            <span>1. Placeholder Link Title</span>
+            <span class="link-icon">🔗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Accordion Logic
+    function toggleWeek(id) {
+      const allSections = document.querySelectorAll('.week-section');
+      const clickedSection = document.getElementById(id);
+      
+      // If the clicked section is already active, close it
+      if (clickedSection.classList.contains('active')) {
+        clickedSection.classList.remove('active');
+        return;
+      }
+
+      // Otherwise, close all other sections and open the clicked one
+      allSections.forEach(section => {
+        section.classList.remove('active');
+      });
+      clickedSection.classList.add('active');
+    }
+  </script>
+</body>
+</html>
